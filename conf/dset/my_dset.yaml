@@ -1,0 +1,9 @@
+# @package _global_
+
+# Musdb + extra tracks
+dset:
+  wav: /home/marnick/data/
+  samplerate: 44100
+  channels: 2
+  sources: ['bass', 'non_bass']
+epochs: 10
