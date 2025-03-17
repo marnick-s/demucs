@@ -6,4 +6,4 @@ dset:
   samplerate: 44100
   channels: 2
   sources: ['bass', 'non_bass']
-epochs: 10
+epochs: 80
