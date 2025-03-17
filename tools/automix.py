@@ -33,8 +33,8 @@ from demucs.pretrained import SOURCES
 from demucs.wav import build_metadata, Wavset, _get_musdb_valid
 
 
-MUSDB_PATH = '/home/marnick/data'
-EXTRA_WAV_PATH = "/home/marnick/data"
+MUSDB_PATH = '/home/user/data'
+EXTRA_WAV_PATH = "/home/user/data"
 # WARNING: OUTPATH will be completely erased.
 OUTPATH = Path.home() / 'tmp/demucs_mdx/automix_musdb/'
 CACHE = Path.home() / 'tmp/automix_cache'  # cache BPM and pitch information.
