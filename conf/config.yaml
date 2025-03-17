@@ -8,10 +8,10 @@ defaults:
 
 dummy:
 dset:
-  musdb: /home/marnick/data
+  musdb: /home/user/data
   musdb_samplerate: 44100
   use_musdb: false   # set to false to not use musdb as training data.
-  wav: /home/marnick/data
+  wav: /home/user/data
   wav2:  # second custom wav dataset
   segment: 11
   shift: 1
