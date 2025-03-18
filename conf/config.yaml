@@ -51,7 +51,7 @@ debug: false
 valid_apply: true
 flag:
 save_every:
-weights: [1., 1., 1., 1.]  # weights over each source for the training/valid loss.
+weights: [1., 1.]  # weights over each source for the training/valid loss.
 
 augment:
   shift_same: false
