@@ -1,4 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the license found in the
@@ -33,8 +33,8 @@ from demucs.pretrained import SOURCES
 from demucs.wav import build_metadata, Wavset, _get_musdb_valid
 
 
-MUSDB_PATH = '/home/user/data'
-EXTRA_WAV_PATH = "/home/user/data"
+MUSDB_PATH = '/checkpoint/defossez/datasets/musdbhq'
+EXTRA_WAV_PATH = "/checkpoint/defossez/datasets/allstems_44"
 # WARNING: OUTPATH will be completely erased.
 OUTPATH = Path.home() / 'tmp/demucs_mdx/automix_musdb/'
 CACHE = Path.home() / 'tmp/automix_cache'  # cache BPM and pitch information.
@@ -78,7 +78,7 @@ def analyse_track(dset, index):
     if cached is None:
         drums = track[0].mean(0)
         if drums.std() > 1e-2 * ref:
-            tempo, events = beat_track(y=drums.numpy(), units='time', sr=SR)
+            tempo, events = beat_track(drums.numpy(), units='time', sr=SR)
         else:
             print("failed drums", drums.std(), ref)
             return None, track
@@ -89,7 +89,7 @@ def analyse_track(dset, index):
         mask = r >= 0.05 * peak
         bass = bass[mask]
         if bass.std() > 1e-2 * ref:
-            kr = torch.from_numpy(chroma_cqt(y=bass.numpy(), sr=SR))
+            kr = torch.from_numpy(chroma_cqt(bass.numpy(), sr=SR))
             hist_kr = (kr.max(dim=0, keepdim=True)[0] == kr).float().mean(1)
         else:
             print("failed bass", bass.std(), ref)

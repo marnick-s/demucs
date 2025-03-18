@@ -1,4 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the license found in the
@@ -12,7 +12,6 @@ import julius
 import numpy as np
 import torch
 import torchaudio as ta
-import typing as tp
 
 from .utils import temp_filenames
 
@@ -73,7 +72,8 @@ class AudioFile:
              duration=None,
              streams=slice(None),
              samplerate=None,
-             channels=None):
+             channels=None,
+             temp_folder=None):
         """
         Slightly more efficient implementation than stempeg,
         in particular, this will extract all stems at once
@@ -94,6 +94,9 @@ class AudioFile:
                 See https://sound.stackexchange.com/a/42710.
                 Our definition of mono is simply the average of the two channels. Any other
                 value will be ignored.
+            temp_folder (str or Path or None): temporary folder to use for decoding.
+
+
         """
         streams = np.array(range(len(self)))[streams]
         single = not isinstance(streams, np.ndarray)
@@ -166,7 +169,7 @@ def convert_audio_channels(wav, channels=2):
     return wav
 
 
-def convert_audio(wav, from_samplerate, to_samplerate, channels) -> torch.Tensor:
+def convert_audio(wav, from_samplerate, to_samplerate, channels):
     """Convert audio from a given samplerate to a target one and target number of channels."""
     wav = convert_audio_channels(wav, channels)
     return julius.resample_frac(wav, from_samplerate, to_samplerate)
@@ -196,7 +199,7 @@ def as_dtype_pcm(wav, dtype):
         return i16_pcm(wav)
 
 
-def encode_mp3(wav, path, samplerate=44100, bitrate=320, quality=2, verbose=False):
+def encode_mp3(wav, path, samplerate=44100, bitrate=320, verbose=False):
     """Save given audio as mp3. This should work on all OSes."""
     C, T = wav.shape
     wav = i16_pcm(wav)
@@ -204,7 +207,7 @@ def encode_mp3(wav, path, samplerate=44100, bitrate=320, quality=2, verbose=Fals
     encoder.set_bit_rate(bitrate)
     encoder.set_in_sample_rate(samplerate)
     encoder.set_channels(C)
-    encoder.set_quality(quality)  # 2-highest, 7-fastest
+    encoder.set_quality(2)  # 2-highest, 7-fastest
     if not verbose:
         encoder.silence()
     wav = wav.data.cpu()
@@ -219,8 +222,6 @@ def prevent_clip(wav, mode='rescale'):
     """
     different strategies for avoiding raw clipping.
     """
-    if mode is None or mode == 'none':
-        return wav
     assert wav.dtype.is_floating_point, "too late for clipping"
     if mode == 'rescale':
         wav = wav / max(1.01 * wav.abs().max(), 1)
@@ -233,24 +234,17 @@ def prevent_clip(wav, mode='rescale'):
     return wav
 
 
-def save_audio(wav: torch.Tensor,
-               path: tp.Union[str, Path],
-               samplerate: int,
-               bitrate: int = 320,
-               clip: tp.Literal["rescale", "clamp", "tanh", "none"] = 'rescale',
-               bits_per_sample: tp.Literal[16, 24, 32] = 16,
-               as_float: bool = False,
-               preset: tp.Literal[2, 3, 4, 5, 6, 7] = 2):
+def save_audio(wav, path, samplerate, bitrate=320, clip='rescale',
+               bits_per_sample=16, as_float=False):
     """Save audio file, automatically preventing clipping if necessary
     based on the given `clip` strategy. If the path ends in `.mp3`, this
-    will save as mp3 with the given `bitrate`. Use `preset` to set mp3 quality:
-    2 for highest quality, 7 for fastest speed
+    will save as mp3 with the given `bitrate`.
     """
     wav = prevent_clip(wav, mode=clip)
     path = Path(path)
     suffix = path.suffix.lower()
     if suffix == ".mp3":
-        encode_mp3(wav, path, samplerate, bitrate, preset, verbose=True)
+        encode_mp3(wav, path, samplerate, bitrate)
     elif suffix == ".wav":
         if as_float:
             bits_per_sample = 32
@@ -259,7 +253,5 @@ def save_audio(wav: torch.Tensor,
             encoding = 'PCM_S'
         ta.save(str(path), wav, sample_rate=samplerate,
                 encoding=encoding, bits_per_sample=bits_per_sample)
-    elif suffix == ".flac":
-        ta.save(str(path), wav, sample_rate=samplerate, bits_per_sample=bits_per_sample)
     else:
         raise ValueError(f"Invalid suffix for path: {suffix}")

@@ -1,4 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the license found in the
@@ -49,13 +49,16 @@ class ModelOnlyRepo:
     def get_model(self, sig: str) -> Model:
         raise NotImplementedError()
 
-    def list_model(self) -> tp.Dict[str, tp.Union[str, Path]]:
-        raise NotImplementedError()
-
 
 class RemoteRepo(ModelOnlyRepo):
-    def __init__(self, models: tp.Dict[str, str]):
-        self._models = models
+    def __init__(self, root_url: str, remote_files: tp.List[str]):
+        if not root_url.endswith('/'):
+            root_url += '/'
+        self._models: tp.Dict[str, str] = {}
+        for file in remote_files:
+            sig, checksum = file.split('.')[0].split('-')
+            assert sig not in self._models
+            self._models[sig] = root_url + file
 
     def has_model(self, sig: str) -> bool:
         return sig in self._models
@@ -68,9 +71,6 @@ class RemoteRepo(ModelOnlyRepo):
         pkg = torch.hub.load_state_dict_from_url(
             url, map_location='cpu', check_hash=True)  # type: ignore
         return load_model(pkg)
-
-    def list_model(self) -> tp.Dict[str, tp.Union[str, Path]]:
-        return self._models  # type: ignore
 
 
 class LocalRepo(ModelOnlyRepo):
@@ -106,9 +106,6 @@ class LocalRepo(ModelOnlyRepo):
             check_checksum(file, self._checksums[sig])
         return load_model(file)
 
-    def list_model(self) -> tp.Dict[str, tp.Union[str, Path]]:
-        return self._models
-
 
 class BagOnlyRepo:
     """Handles only YAML files containing bag of models, leaving the actual
@@ -141,9 +138,6 @@ class BagOnlyRepo:
         segment = bag.get('segment')
         return BagOfModels(models, weights, segment)
 
-    def list_model(self) -> tp.Dict[str, tp.Union[str, Path]]:
-        return self._bags
-
 
 class AnyModelRepo:
     def __init__(self, model_repo: ModelOnlyRepo, bag_repo: BagOnlyRepo):
@@ -158,9 +152,3 @@ class AnyModelRepo:
             return self.model_repo.get_model(name_or_sig)
         else:
             return self.bag_repo.get_model(name_or_sig)
-
-    def list_model(self) -> tp.Dict[str, tp.Union[str, Path]]:
-        models = self.model_repo.list_model()
-        for key, value in self.bag_repo.list_model().items():
-            models[key] = value
-        return models

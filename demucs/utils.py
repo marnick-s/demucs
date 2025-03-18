@@ -1,11 +1,10 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
 from collections import defaultdict
-from concurrent.futures import CancelledError
 from contextlib import contextmanager
 import math
 import os
@@ -14,7 +13,6 @@ import typing as tp
 
 import torch
 from torch.nn import functional as F
-from torch.utils.data import Subset
 
 
 def unfold(a, kernel_size, stride):
@@ -110,37 +108,21 @@ def temp_filenames(count: int, delete=True):
                 os.unlink(name)
 
 
-def random_subset(dataset, max_samples: int, seed: int = 42):
-    if max_samples >= len(dataset):
-        return dataset
-
-    generator = torch.Generator().manual_seed(seed)
-    perm = torch.randperm(len(dataset), generator=generator)
-    return Subset(dataset, perm[:max_samples].tolist())
-
-
 class DummyPoolExecutor:
     class DummyResult:
-        def __init__(self, func, _dict, *args, **kwargs):
+        def __init__(self, func, *args, **kwargs):
             self.func = func
-            self._dict = _dict
             self.args = args
             self.kwargs = kwargs
 
         def result(self):
-            if self._dict["run"]:
-                return self.func(*self.args, **self.kwargs)
-            else:
-                raise CancelledError()
+            return self.func(*self.args, **self.kwargs)
 
     def __init__(self, workers=0):
-        self._dict = {"run": True}
+        pass
 
     def submit(self, func, *args, **kwargs):
-        return DummyPoolExecutor.DummyResult(func, self._dict, *args, **kwargs)
-
-    def shutdown(self, *_, **__):
-        self._dict["run"] = False
+        return DummyPoolExecutor.DummyResult(func, *args, **kwargs)
 
     def __enter__(self):
         return self

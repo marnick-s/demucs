@@ -1,4 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the license found in the
@@ -34,17 +34,6 @@ def _track_metadata(track, sources, normalize=True, ext=EXT):
     std = 1
     for source in sources + [MIXTURE]:
         file = track / f"{source}{ext}"
-        if source == MIXTURE and not file.exists():
-            audio = 0
-            for sub_source in sources:
-                sub_file = track / f"{sub_source}{ext}"
-                sub_audio, sr = ta.load(sub_file)
-                audio += sub_audio
-            would_clip = audio.abs().max() >= 1
-            if would_clip:
-                assert ta.get_audio_backend() == 'soundfile', 'use dset.backend=soundfile'
-            ta.save(file, audio, sr, encoding='PCM_F')
-
         try:
             info = ta.info(str(file))
         except RuntimeError:
@@ -184,13 +173,12 @@ class Wavset:
             return example
 
 
-def get_wav_datasets(args, name='wav'):
+def get_wav_datasets(args):
     """Extract the wav datasets from the XP arguments."""
-    path = getattr(args, name)
-    sig = hashlib.sha1(str(path).encode()).hexdigest()[:8]
+    sig = hashlib.sha1(str(args.wav).encode()).hexdigest()[:8]
     metadata_file = Path(args.metadata) / ('wav_' + sig + ".json")
-    train_path = Path(path) / "train"
-    valid_path = Path(path) / "valid"
+    train_path = Path(args.wav) / "train"
+    valid_path = Path(args.wav) / "valid"
     if not metadata_file.is_file() and distrib.rank == 0:
         metadata_file.parent.mkdir(exist_ok=True, parents=True)
         train = build_metadata(train_path, args.sources)

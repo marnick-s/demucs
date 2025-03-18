@@ -16,8 +16,6 @@ Get the [Musdb HQ](https://zenodo.org/record/3338373) dataset, and update the pa
 
 ### Create the fine tuning datasets
 
-**This is only for the MDX 2021 competition models**
-
 I use a fine tuning on a dataset crafted by remixing songs in a musically plausible way.
 The automix script will make sure that BPM, first beat and pitches are aligned.
 In the file `tools/automix.py`, edit `OUTPATH` to suit your setup, as well as the `MUSDB_PATH`
@@ -88,19 +86,6 @@ Have a look at [conf/config.yaml](../conf/config.yaml) for a list of all the hyp
 If you are not familiar with [Hydra](https://github.com/facebookresearch/hydra), go checkout their page
 to be familiar with how to provide overrides for your trainings.
 
-
-## Model architecture
-
-A number of architectures are supported. You can select one with `model=NAME`, and have a look
-in [conf/config.yaml'(../conf/config.yaml) for each architecture specific hyperparams.
-Those specific params will be always prefixed with the architecture name when passing the override
-from the command line or in grid files. Here is the list of models:
-
-- demucs: original time-only Demucs.
-- hdemucs: Hybrid Demucs (v3).
-- torch_hdemucs: Same as Hybrid Demucs, but using [torchaudio official implementation](https://pytorch.org/audio/stable/tutorials/hybrid_demucs_tutorial.html).
-- htdemucs: Hybrid Transformer Demucs (v4).
-
 ### Storing config in files
 
 As mentioned earlier, you should never change the base config files. However, you can use Hydra config groups
@@ -108,7 +93,7 @@ in order to store variants you often use. If you want to create a new variant co
 copy the file `conf/variant/example.yaml` to `conf/variant/my_variant.yaml`, and then you can use it with
 
 ```bash
-dora run -d variant=my_variant
+dora train -d variant=my_variant
 ```
 
 Once you have created this file, you should not edit it once you have started training models with it.
@@ -173,43 +158,7 @@ to use the local model repositories, with the `--repo ./release_models` flag, e.
 python3 -m tools.test_pretrained --repo ./release_models -n my_bag
 ```
 
-
-## API to retrieve the model
-
-You can retrieve officially released models in Python using the following API:
-```python
-from demucs import pretrained
-from demucs.apply import apply_model
-bag = pretrained.get_model('htdemucs')    # for a bag of models or a named model
-                                          # (which is just a bag with 1 model).
-model = pretrained.get_model('955717e8')  # using the signature for single models.
-
-bag.models                       # list of individual models
-stems = apply_model(model, mix)  # apply the model to the given mix.
-```
-
 ## Model Zoo
-
-### Hybrid Transformer Demucs
-
-The configuration for the Hybrid Transformer models are available in:
-
-```shell
-dora grid mmi --dry_run --init
-dora grid mmi_ft --dry_run --init  # fined tuned on each sources.
-```
-
-We release in particular `955717e8`, Hybrid Transformer Demucs using 5 layers, 512 channels, 10 seconds training segment length. We also release its fine tuned version, with one model
-for each source `f7e0c4bc`, `d12395a8`, `92cfc3b6`, `04573f0d` (drums, bass, other, vocals).
-The model `955717e8` is also named `htdemucs`, while the bag of models is provided
-as `htdemucs_ft`.
-
-We also release `75fc33f5`, a regular Hybrid Demucs trained on the same dataset,
-available as `hdemucs_mmi`.
-
-
-
-### Models from the MDX Competition 2021
 
   
 Here is a short descriptions of the models used for the MDX submission, either Track A (MusDB HQ only)
@@ -220,7 +169,7 @@ All the fine tuned models are available on our AWS repository
 by doing `demucs.pretrained.get_model(NAME)` with `NAME` begin either `mdx` (for Track A) or `mdx_extra`
 (for Track B).
 
-#### Track A
+### Track A
 
 The 4 models are:
 
@@ -250,7 +199,7 @@ dora grid mdx --dry_run --init
 dora grid mdx --dry_run --init
 ```
 
-#### Track B
+### Track B
 
 - `e51eebcc`
 - `a1d90b5c`

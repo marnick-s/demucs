@@ -1,7 +1,6 @@
 # please make sure you have already a pytorch install that is cuda enabled!
-dora-search>=0.1.12
+dora-search
 diffq>=0.2.1
-einops
 flake8
 hydra-colorlog>=1.1
 hydra-core>=1.1
@@ -13,7 +12,7 @@ openunmix
 pyyaml
 submitit
 torch>=1.8.1
-torchaudio>=0.8,<2.1
+torchaudio>=0.8
 tqdm
 treetable
 soundfile>=0.10.3;sys_platform=="win32"

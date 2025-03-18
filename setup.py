@@ -1,4 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the license found in the
@@ -17,7 +17,7 @@ DESCRIPTION = 'Music source separation in the waveform domain.'
 URL = 'https://github.com/facebookresearch/demucs'
 EMAIL = 'defossez@fb.com'
 AUTHOR = 'Alexandre Défossez'
-REQUIRES_PYTHON = '>=3.8.0'
+REQUIRES_PYTHON = '>=3.7.0'
 
 HERE = Path(__file__).parent
 

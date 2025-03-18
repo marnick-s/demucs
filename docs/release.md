@@ -1,44 +1,5 @@
 # Release notes for Demucs
 
-## V4.1.0a1, TBD
-
-Get models list
-
-Check segment of HTDemucs inside BagOfModels
-
-Added api.py to be called from another program
-
-Use api in separate.py
-
-Added `--other-method`: method to get `no_{STEM}`, add up all the other stems (add), original track substract the specific stem (minus), and discard (none)
-
-Added type `HTDemucs` to type alias `AnyModel`.
-
-## V4.0.1, 8th of September 2023
-
-**From this version, Python 3.7 is no longer supported. This is not a problem since the latest PyTorch 2.0.0 no longer support it either.**
-
-Various improvements by @CarlGao4. Support for `segment` param inside of HTDemucs
-model.
-
-Made diffq an optional dependency, with an error message if not installed.
-
-Added output format flac (Free Lossless Audio Codec)
-
-Will use CPU for complex numbers, when using MPS device (all other computations are performed by mps).
-
-Optimize codes to save memory
-
-Allow changing preset of MP3
-
-## V4.0.0, 7th of December 2022
-
-Adding hybrid transformer Demucs model.
-
-Added support for [Torchaudio implementation of HDemucs](https://pytorch.org/audio/main/tutorials/hybrid_demucs_tutorial.html), thanks @skim0514.
-
-Added experimental 6 sources model `htdemucs_6s` (`drums`, `bass`, `other`, `vocals`, `piano`, `guitar`).
-
 ## V3.0.6, 16th of November 2022
 
 Option to customize output path of stems (@CarlGao4)

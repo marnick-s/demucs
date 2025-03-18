@@ -1,4 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
 # This source code is licensed under the license found in the
@@ -16,32 +16,19 @@ from pathlib import Path
 import warnings
 
 from omegaconf import OmegaConf
-from dora.log import fatal
+from diffq import DiffQuantizer, UniformQuantizer, restore_quantized_state
 import torch
-
-
-def _check_diffq():
-    try:
-        import diffq  # noqa
-    except ImportError:
-        fatal('Trying to use DiffQ, but diffq is not installed.\n'
-              'On Windows run: python.exe -m pip install diffq \n'
-              'On Linux/Mac, run: python3 -m pip install diffq')
 
 
 def get_quantizer(model, args, optimizer=None):
     """Return the quantizer given the XP quantization args."""
     quantizer = None
     if args.diffq:
-        _check_diffq()
-        from diffq import DiffQuantizer
         quantizer = DiffQuantizer(
             model, min_size=args.min_size, group_size=args.group_size)
         if optimizer is not None:
             quantizer.setup_optimizer(optimizer)
     elif args.qat:
-        _check_diffq()
-        from diffq import UniformQuantizer
         quantizer = UniformQuantizer(
                 model, bits=args.qat, min_size=args.min_size)
     return quantizer
@@ -99,8 +86,6 @@ def set_state(model, state, quantizer=None):
         if quantizer is not None:
             quantizer.restore_quantized_state(model, state['quantized'])
         else:
-            _check_diffq()
-            from diffq import restore_quantized_state
             restore_quantized_state(model, state)
     else:
         model.load_state_dict(state)
