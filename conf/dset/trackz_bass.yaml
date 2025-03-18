@@ -1,0 +1,14 @@
+# @package _global_
+
+# Musdb + extra tracks
+dset:
+  wav: /home/user/data/
+  samplerate: 44100
+  channels: 2
+  sources: ['bass', 'non_bass']
+epochs: 360
+max_batches: 300
+batch_size: 64
+
+misc:
+  num_workers: 10
