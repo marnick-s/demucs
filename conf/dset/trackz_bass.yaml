@@ -8,7 +8,7 @@ dset:
   sources: ['bass', 'non_bass']
 epochs: 360
 max_batches: 300
-batch_size: 10
+batch_size: 12
 
 misc:
   num_workers: 10
