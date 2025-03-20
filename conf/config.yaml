@@ -24,12 +24,12 @@ dset:
 test:
   save: False
   best: True
-  workers: 0
+  workers: 2
   every: 1
   split: true
   shifts: 1
   overlap: 0.25
-  sdr: false
+  sdr: true
   metric: 'loss'  # metric used for best model selection on the valid set, can also be nsdr
   nonhq:   # path to non hq MusDB for evaluation
 
