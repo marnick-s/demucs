@@ -154,6 +154,9 @@ def evaluate(solver, compute_sdr=False):
             all_tracks.update(distrib.share(tracks, src))
 
         result = {}
+        print(all_tracks)
+        print(all_tracks.values())
+        print(model.sources)
         metric_names = next(iter(all_tracks.values()))[model.sources[0]]
         for metric_name in metric_names:
             avg = 0
