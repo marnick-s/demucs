@@ -260,9 +260,9 @@ class Solver(object):
             div = epoch >= 180 and reco > 0.18
             div = div or epoch >= 100 and reco > 0.25
             div = div and self.args.optim.loss == 'l1'
-            if div:
-                logger.warning("Finishing training early because valid loss is too high.")
-                is_last = True
+            # if div:
+            #     logger.warning("Finishing training early because valid loss is too high.")
+            #     is_last = True
             # if should_eval or is_last:
             #     # Evaluate on the testset
             #     logger.info('-' * 70)
