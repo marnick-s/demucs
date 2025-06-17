@@ -1,14 +1,16 @@
 # @package _global_
 
-# Musdb + extra tracks
+# Trackz Bass
 dset:
   wav: /home/user/data/
   samplerate: 44100
   channels: 2
   sources: ['bass', 'non_bass']
-epochs: 300
-max_batches: 300
+epochs: 100
+max_batches: 100
 batch_size: 8
+segment: 11
+weights: [1., 1.]  # weights over each source for the training/valid loss.
 
 misc:
   num_workers: 4
